@@ -6,30 +6,41 @@ Transport-agnostic communications for electron apps.
 tbd
 
 # API
+```ts
+interface Communicator {
 
-### `new Communicator(transport)`
-Creates a new communicator, leveraging the specified [transport](#transport_interface) instance
+    // Creates a new communicator utilitizing the specified transport
+    // See Transport interface for more info
+    constructor(transport : Transport)
 
-### `.register(method: string, handler: (...args: any[]) => any) : void`
-Registers a remote-invocable method
+    // Registers a remote-invocable method
+    register(method: string, handler: (...args: any[]) => any) : void;
 
-### `.unregister(method: string, handler: (...args: any[]) => any) : void`
-Unregisters a remote-invocable method
+    // Unregisters a remote-invocable method
+    unregister(method: string, handler: (...args: any[]) => any) : void;
 
-### `.getRemoteMethods() : Promise<string[]>`
-Retrieves a list of remote-registered methods
+    // Retrieves a list of remote-registered method names
+    getRemoteMethods() : Promise<string[]>;
 
-### `.invoke(method: string, ...args: any[]) : Promise<any>`
-Invokes a remote-registered method, returns a promise that resolves with the result
+    // Invokes a remote-registered method
+    invoke(method: string, ...args: any[]) : Promise<any>;
 
-### `.on(event: string, handler: (...args: any[]) => void, once?: boolean = false) : void`
-Registers an event listener
+    // Registers a remote-emitted event listener
+    on(event: string, handler: (...args: any[]) => void, once?: boolean = false) : void;
 
-### `.off(event: string, handler: (...args: any[]) => void, once?: boolean = false) : void`
-Unreigsters an event listener
+    // Unregisters a remote-emitted event listener
+    off(event: string, handler: (...args: any[]) => void, once?: boolean = false) : void;
 
-### `.offAll(event?: string) : void`
-Removes all event listeners. If `event` is specified just the listeners for that even are removed
+    // Removes all event listeners. If `event` is specified only the listeners for that event are removed
+    offAll(event?: string) : void;
+}
+```
+
+# Ipc Transport
+AEC provides an electron-ipc transport out of the box.
+
+It can be accessed via `/ipc-transport/main`, `/ipc-transport/preload` and `/ipc-transport/renderer`
+
 
 # Transport Interface
 Transports must comform to the following interface:
