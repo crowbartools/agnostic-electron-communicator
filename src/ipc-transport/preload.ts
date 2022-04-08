@@ -1,22 +1,17 @@
-import { type BrowserWindow, ipcMain } from 'electron';
+import { type IpcTransport } from '../types';
+import { ipcRenderer as renderer, contextBridge } from 'electron';
 
-import { IpcTransport } from '../../typings/transport';
+export default (name: string) : void => {
 
-export default (window : BrowserWindow) : IpcTransport => {
-    const win = window.webContents;
+    let messageHandler : ((message: string) => void) | undefined;
 
-    let messageHandler : ((message: string) => void) | void;
-
-    const processMessage = (event: Electron.IpcMainEvent, message: string) : void => {
-        if (
-            messageHandler != null &&
-            event.sender === win
-        ) {
+    const processMessage = (event: Electron.IpcRendererEvent, message: string) : void => {
+        if (messageHandler != null) {
             messageHandler(message);
         }
     };
 
-    ipcMain.on('AgnosticElectronCommunicator', processMessage);
+    renderer.on('AgnosticElectronCommunicator', processMessage);
 
     const transport : IpcTransport = Object.create(null, {
 
@@ -30,7 +25,7 @@ export default (window : BrowserWindow) : IpcTransport => {
         // sends data through IPC
         aecSend: {
             value: (data : any) => {
-                win.send('AgnosticElectronCommunicator', data);
+                renderer.send('AgnosticElectronCommunicator', data);
             }
         },
 
@@ -46,11 +41,11 @@ export default (window : BrowserWindow) : IpcTransport => {
 
         aecDisconnect: {
             value: () => {
-                ipcMain.off('AgnosticElectronCommunicator', processMessage);
+                renderer.off('AgnosticElectronCommunicator', processMessage);
                 messageHandler = undefined;
             }
         }
     });
 
-    return transport;
+    contextBridge.exposeInMainWorld(name, transport);
 };

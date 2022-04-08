@@ -1,6 +1,7 @@
 {
     "compilerOptions": {
         "lib": ["es2021", "DOM"],
+        "outDir": "package/",
         "module": "commonjs",
         "target": "es2021",
         "strict": true,
@@ -8,10 +9,14 @@
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true,
         "types": ["node", "electron"],
+        "declaration": true,
         "sourceMap": true
     },
     "exclude": ["node_modules"],
     "files": [
-        "src/index.ts"
+        "src/index.ts",
+        "src/ipc-transport/main.ts",
+        "src/ipc-transport/preload.ts",
+        "src/ipc-transport/renderer.ts"
     ]
 }

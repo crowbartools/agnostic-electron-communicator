@@ -1,0 +1,1 @@
+{"version":3,"file":"renderer.js","sourceRoot":"","sources":["../../src/ipc-transport/renderer.ts"],"names":[],"mappings":";;AAEA,kBAAe,CAAC,SAAiB,EAAwB,EAAE;IACvD,IAAI,MAAM,IAAI,IAAI,EAAE;QAChB,OAAO;KACV;IACD,MAAM,SAAS,GAA+B,MAAc,CAAC,SAAS,CAAC,CAAC;IACxE,IACI,SAAS,IAAI,IAAI;QACjB,SAAS,CAAC,iBAAiB,KAAK,IAAI,EACtC;QACE,OAAO;KACV;IACD,OAAO,SAAS,CAAC;AACrB,CAAC,CAAC"}

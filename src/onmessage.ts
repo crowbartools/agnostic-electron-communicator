@@ -1,6 +1,7 @@
-import { $listeners, $methods, $pending, $send } from './symbols';
+import { type default as Communicator } from ".";
+import { type AECMessage } from './types';
 
-import { type default as Communicator, type AECMessage } from "./communicator";
+import { $listeners, $methods, $pending, $send } from './symbols';
 
 export default function onMessage(this: Communicator, message: string) : void {
     let packet : AECMessage;

@@ -1,8 +1,16 @@
 {
   "name": "agnostic-electron-communicator",
+  "description": "Transport agnostic communicator for electron apps",
   "version": "0.0.1",
   "author": "Crowbar Tools",
-  "description": "Transport agnostic communicator for electron apps",
+
+  "workspaces":[
+    "/package/*"
+  ],
+  "main": "/package/index.js",
+  "scripts": {
+    "install": "tsc"
+  },
   "devDependencies": {
     "@types/node": "^17.0.23",
     "electron": "^18.0.3",
