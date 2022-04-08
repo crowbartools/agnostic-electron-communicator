@@ -31,8 +31,12 @@ interface Communicator {
     // Unregisters a remote-emitted event listener
     off(event: string, handler: (...args: any[]) => void, once?: boolean = false) : void;
 
-    // Removes all event listeners. If `event` is specified only the listeners for that event are removed
+    // Removes all event listeners.
+    // If `event` is specified only the listeners for that event are removed
     offAll(event?: string) : void;
+
+    // Emits an event to the remote side of the transport
+    emit(event: string, data: any) : void;
 }
 ```
 
