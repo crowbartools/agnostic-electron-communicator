@@ -81,13 +81,22 @@ const transport = mainIpcTransport(mainWindow);
 
 const communicator = new Communicator(transport);
 
-communicator.on('hello', () => {
-    console.log('hello message received from renderer');
-    communicator.emit('hi');
-})
+// Register methods
+// When a promise is returned, the communicator waits for it to resolve before responding, otherwise it immiedately responds with the result
+communicator.register('toLowerCase', msg => Promise.resolve(msg.toLowerCase()));
+communicator.register('toUpperCase', msg => msg.toUpperCase());
 
-mainWindow.webContents.on('did-finish-load', () => {
-    communicator.emit('')
+communicator.on('foo', async function onFoo() {
+
+    // remove foo event listener
+    communicator.off('foo', onFoo);
+
+    // invoke a renderer-side method
+    const who = await communicator.invoke('who');
+    console.log(`renderer is: ${who}`);
+
+    // emit an event on the renderer side:
+    communicator.emit('bar');
 });
 ```
 
@@ -105,10 +114,14 @@ import Communicator from 'agnostic-electron-communicator';
 const transport = rendererIpcTransport('unique_name_space');
 
 const communicator = new Communicator(transport /*, || a fallback transport */);
-communicator.on('hi', () => {
-    console.log('hi message received from main');
-})
-communicator.emit('hello');
+communicator.register('who', () => 'me');
+
+communicator.on('bar', async () => {
+    const uppercased = await communicator.invoke('toUpperCase', baz);
+    console.log(uppercased);
+});
+
+communicator.emit('foo');
 ```
 
 # license
