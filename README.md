@@ -82,7 +82,7 @@ const transport = mainIpcTransport(mainWindow);
 const communicator = new Communicator(transport);
 
 // Register methods
-// When a promise is returned, the communicator waits for it to resolve before responding, otherwise it immiedately responds with the result
+// When a promise is returned the communicator waits for it to resolve before responding
 communicator.register('toLowerCase', msg => Promise.resolve(msg.toLowerCase()));
 communicator.register('toUpperCase', msg => msg.toUpperCase());
 
@@ -114,10 +114,11 @@ import Communicator from 'agnostic-electron-communicator';
 const transport = rendererIpcTransport('unique_name_space');
 
 const communicator = new Communicator(transport /*, || a fallback transport */);
+
 communicator.register('who', () => 'me');
 
 communicator.on('bar', async () => {
-    const uppercased = await communicator.invoke('toUpperCase', baz);
+    const uppercased = await communicator.invoke('toUpperCase', 'baz');
     console.log(uppercased);
 });
 
