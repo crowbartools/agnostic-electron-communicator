@@ -1,9 +1,13 @@
 import { type default as Communicator } from ".";
 import { type AECMessage } from './types';
 
-import { $listeners, $methods, $pending, $send } from './symbols';
+import { $destroyed, $listeners, $methods, $pending, $send } from './symbols';
 
 export default function onMessage(this: Communicator, message: string) : void {
+    if (this[$destroyed]) {
+        console.error(new Error('message received after communicator has been destroyed'));
+        return;
+    }
     let packet : AECMessage;
     try {
         packet = JSON.parse(message);
@@ -14,7 +18,7 @@ export default function onMessage(this: Communicator, message: string) : void {
             throw new Error(`invalid name property in recieved message: ${message}`);
         }
     } catch (err) {
-        console.log(err);
+        console.error(err);
         return;
     }
 

@@ -51,13 +51,17 @@ class Communicator {
         transport.aecMessage(onmessage_1.default.bind(this));
     }
     [(_a = symbols_1.$destroyed, _b = symbols_1.$listeners, _c = symbols_1.$methods, _d = symbols_1.$messageId, symbols_1.$send)](data) {
-        return this[symbols_1.$transport].aecSend(JSON.stringify(data));
+        const transport = this[symbols_1.$transport];
+        if (!this[symbols_1.$destroyed] || transport == null) {
+            return Promise.reject(new Error('communicator is destroyed'));
+        }
+        return transport.aecSend(JSON.stringify(data));
     }
     ready() {
         if (this[symbols_1.$destroyed]) {
             return Promise.reject(new Error('communicator is destroyed'));
         }
-        return this[symbols_1.$transport].aecReady();
+        return this[symbols_1.$transport]?.aecReady();
     }
     destroyed() {
         return this[symbols_1.$destroyed];
@@ -315,7 +319,8 @@ class Communicator {
     }
     destroy() {
         if (!this[symbols_1.$destroyed]) {
-            this[symbols_1.$transport].aecDisconnect();
+            this[symbols_1.$transport]?.aecDisconnect();
+            delete this[symbols_1.$transport];
             disconnectHandler.call(this);
             this[symbols_1.$listeners] = {};
             this[symbols_1.$methods] = {};

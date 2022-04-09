@@ -15,7 +15,7 @@ export default class Communicator {
     private [$messageId];
     constructor(transport: Transport, options?: CommunicatorOptions);
     [$send](data: any): Promise<void>;
-    ready(): Promise<void>;
+    ready(): Promise<void> | undefined;
     destroyed(): Boolean;
     on(event: string, handler: () => void, once?: boolean): void;
     off(event: string, handler: () => void, once?: boolean): void;

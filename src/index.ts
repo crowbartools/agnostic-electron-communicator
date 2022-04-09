@@ -37,7 +37,7 @@ function disconnectHandler(this: Communicator) {
 
 export default class Communicator {
     private [$destroyed] : Boolean = false;
-    private [$transport] : Transport;
+    private [$transport] : Transport | undefined | void | null;
     private [$listeners] : Record<string, EventListener[]> = Object.create(null);
     private [$methods] : Record<string, (...args: any[]) => Promise<any>> = Object.create(null);
     private [$options] : CommunicatorOptions;
@@ -77,14 +77,18 @@ export default class Communicator {
     }
 
     [$send](data: any) {
-        return this[$transport].aecSend(JSON.stringify(data));
+        const transport = this[$transport];
+        if (!this[$destroyed] || transport == null) {
+            return Promise.reject(new Error('communicator is destroyed'))
+        }
+        return transport.aecSend(JSON.stringify(data));
     }
 
     ready() {
         if (this[$destroyed]) {
             return Promise.reject(new Error('communicator is destroyed'));
         }
-        return this[$transport].aecReady();
+        return this[$transport]?.aecReady();
     }
 
     destroyed() {
@@ -387,7 +391,9 @@ export default class Communicator {
 
     destroy() : void {
         if (!this[$destroyed]) {
-            this[$transport].aecDisconnect();
+            this[$transport]?.aecDisconnect();
+            delete this[$transport];
+
             disconnectHandler.call(this);
             this[$listeners] = {};
             this[$methods] = {};

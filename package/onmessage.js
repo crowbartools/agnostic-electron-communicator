@@ -2,6 +2,10 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const symbols_1 = require("./symbols");
 function onMessage(message) {
+    if (this[symbols_1.$destroyed]) {
+        console.error(new Error('message received after communicator has been destroyed'));
+        return;
+    }
     let packet;
     try {
         packet = JSON.parse(message);
@@ -13,7 +17,7 @@ function onMessage(message) {
         }
     }
     catch (err) {
-        console.log(err);
+        console.error(err);
         return;
     }
     const send = this[symbols_1.$send];
