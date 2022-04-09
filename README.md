@@ -11,7 +11,10 @@ interface Communicator {
 
     // Creates a new communicator utilitizing the specified transport
     // See Transport interface for more info
-    constructor(transport : Transport)
+    constructor(transport : Transport);
+
+    // Resolves when the specified transport is ready
+    ready() : Promise<void>;
 
     // Registers a remote-invocable method
     register(method: string, handler: (...args: any[]) => any) : void;
@@ -81,6 +84,8 @@ const transport = mainIpcTransport(mainWindow);
 
 const communicator = new Communicator(transport);
 
+await communicator.ready();
+
 // Register methods
 // When a promise is returned the communicator waits for it to resolve before responding
 communicator.register('toLowerCase', msg => Promise.resolve(msg.toLowerCase()));
@@ -114,6 +119,8 @@ import Communicator from 'agnostic-electron-communicator';
 const transport = rendererIpcTransport('unique_name_space');
 
 const communicator = new Communicator(transport /*, || a fallback transport */);
+
+await communicator.ready();
 
 communicator.register('who', () => 'me');
 
