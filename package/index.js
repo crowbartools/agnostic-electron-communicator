@@ -2,7 +2,7 @@
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var _a, _b, _c, _d;
+var _a, _b, _c, _d, _e;
 Object.defineProperty(exports, "__esModule", { value: true });
 const symbols_1 = require("./symbols");
 const onmessage_1 = __importDefault(require("./onmessage"));
@@ -23,7 +23,8 @@ class Communicator {
         this[_a] = false;
         this[_b] = Object.create(null);
         this[_c] = Object.create(null);
-        this[_d] = 1;
+        this[_d] = [];
+        this[_e] = 1;
         let sendTimeout = 30000;
         if (options?.sendTimeout !== null) {
             if (options?.sendTimeout) {
@@ -50,7 +51,7 @@ class Communicator {
         transport.aecDisconnection(disconnectHandler.bind(this));
         transport.aecMessage(onmessage_1.default.bind(this));
     }
-    [(_a = symbols_1.$destroyed, _b = symbols_1.$listeners, _c = symbols_1.$methods, _d = symbols_1.$messageId, symbols_1.$send)](data) {
+    [(_a = symbols_1.$destroyed, _b = symbols_1.$listeners, _c = symbols_1.$methods, _d = symbols_1.$pending, _e = symbols_1.$messageId, symbols_1.$send)](data) {
         const transport = this[symbols_1.$transport];
         if (!this[symbols_1.$destroyed] || transport == null) {
             return Promise.reject(new Error('communicator is destroyed'));
@@ -319,7 +320,7 @@ class Communicator {
     }
     destroy() {
         if (!this[symbols_1.$destroyed]) {
-            this[symbols_1.$transport]?.aecDisconnect();
+            this[symbols_1.$transport]?.aecDestroy();
             delete this[symbols_1.$transport];
             disconnectHandler.call(this);
             this[symbols_1.$listeners] = {};

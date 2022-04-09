@@ -42,7 +42,7 @@ export default class Communicator {
     private [$methods] : Record<string, (...args: any[]) => Promise<any>> = Object.create(null);
     private [$options] : CommunicatorOptions;
 
-    private [$pending] : PendingInvocation[];
+    private [$pending] : PendingInvocation[] = [];
     private [$messageId] : number = 1;
 
     constructor(transport: Transport, options?: CommunicatorOptions) {
@@ -391,7 +391,7 @@ export default class Communicator {
 
     destroy() : void {
         if (!this[$destroyed]) {
-            this[$transport]?.aecDisconnect();
+            this[$transport]?.aecDestroy();
             delete this[$transport];
 
             disconnectHandler.call(this);

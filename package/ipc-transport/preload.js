@@ -30,7 +30,7 @@ exports.default = (name) => {
                 messageHandler = handler;
             }
         },
-        aecDisconnect: {
+        aecDestroy: {
             value: () => {
                 electron_1.ipcRenderer.off('AgnosticElectronCommunicator', processMessage);
                 messageHandler = undefined;

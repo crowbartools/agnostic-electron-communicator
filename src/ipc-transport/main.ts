@@ -44,7 +44,7 @@ export default (window : BrowserWindow) : IpcTransport => {
             }
         },
 
-        aecDisconnect: {
+        aecDestroy: {
             value: () => {
                 ipcMain.off('AgnosticElectronCommunicator', processMessage);
                 messageHandler = undefined;

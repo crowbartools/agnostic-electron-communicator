@@ -39,7 +39,7 @@ export default (name: string) : void => {
             }
         },
 
-        aecDisconnect: {
+        aecDestroy: {
             value: () => {
                 renderer.off('AgnosticElectronCommunicator', processMessage);
                 messageHandler = undefined;

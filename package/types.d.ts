@@ -3,7 +3,7 @@ export interface Transport {
     aecMessage: (handler: (message: string) => void) => void;
     aecReady: () => Promise<void>;
     aecSend: (data: string) => Promise<void>;
-    aecDisconnect: () => void;
+    aecDestroy: () => void;
 }
 export interface IpcTransport extends Transport {
     isAecIpcTransport: boolean;
