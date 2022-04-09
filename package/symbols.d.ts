@@ -1,3 +1,4 @@
+export declare const $destroyed: unique symbol;
 export declare const $listeners: unique symbol;
 export declare const $methods: unique symbol;
 export declare const $transport: unique symbol;

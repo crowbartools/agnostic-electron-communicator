@@ -16,6 +16,13 @@ interface Communicator {
     // Resolves when the specified transport is ready
     ready() : Promise<void>;
 
+    // returns true if the communicator has been destroyed
+    // via .destroy()
+    destroyed(): boolean;
+
+    // destroys the communicator
+    destroy(): void;
+
     // Registers a remote-invocable method
     register(method: string, handler: (...args: any[]) => any) : void;
 

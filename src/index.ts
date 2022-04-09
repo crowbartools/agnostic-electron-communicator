@@ -2,7 +2,7 @@ import { type Transport, type AECMessage } from './types';
 
 export { Transport, AECMessage };
 
-import { $listeners, $methods, $transport, $messageId, $options, $pending, $send } from './symbols';
+import { $destroyed, $listeners, $methods, $transport, $messageId, $options, $pending, $send } from './symbols';
 
 import messageHandler from './onmessage';
 
@@ -36,6 +36,7 @@ function disconnectHandler(this: Communicator) {
 }
 
 export default class Communicator {
+    private [$destroyed] : Boolean = false;
     private [$transport] : Transport;
     private [$listeners] : Record<string, EventListener[]> = Object.create(null);
     private [$methods] : Record<string, (...args: any[]) => Promise<any>> = Object.create(null);
@@ -75,20 +76,35 @@ export default class Communicator {
         transport.aecMessage(messageHandler.bind(this));
     }
 
+    [$send](data: any) {
+        return this[$transport].aecSend(JSON.stringify(data));
+    }
+
     ready() {
+        if (this[$destroyed]) {
+            return Promise.reject(new Error('communicator is destroyed'));
+        }
         return this[$transport].aecReady();
     }
 
+    destroyed() {
+        return this[$destroyed];
+    }
+
     on(event: string, handler: () => void, once: boolean = false) : void {
+        if (this[$destroyed]) {
+            throw new Error('communicator is destroyed');
+        }
         if (typeof event !== 'string' || event === '') {
-            // error;
+            throw new TypeError('invalid event name');
         }
         if (typeof handler !== 'function') {
-            // error
+            throw new TypeError('handler must be a function');
         }
         if (once != null && !!once !== once) {
-            // error
+            throw new TypeError('once must be boolean or undefined');
         }
+
         once = !!once;
         if (this[$listeners][event]) {
             this[$listeners][event].push({handler, once});
@@ -98,17 +114,20 @@ export default class Communicator {
     }
 
     off(event: string, handler: () => void, once: boolean = false) : void {
+        if (this[$destroyed]) {
+            throw new Error('communicator is destroyed');
+        }
         if (typeof event !== 'string' || event === '') {
-            // error;
+            throw new TypeError('invalid event name');
         }
         if (typeof handler !== 'function') {
-            // error
+            throw new TypeError('handler must be a function');
         }
         if (once != null && !!once !== once) {
-            // error
+            throw new TypeError('once must be boolean or undefined');
         }
-        once = !!once;
 
+        once = !!once;
         const eventListeners = this[$listeners][event];
         if (eventListeners != null) {
             const idx = eventListeners.findIndex(listener => listener.handler === handler && listener.once === once);
@@ -122,11 +141,14 @@ export default class Communicator {
     }
 
     offAll(event?: string) : void {
-        if (event == null) {
+        if (this[$destroyed]) {
+            throw new Error('communicator is destroyed');
+
+        } else if (event == null) {
             this[$listeners] = Object.create(null);
 
         } else if (typeof event !== 'string' || event === '') {
-            // error
+            throw new TypeError('invalid event name');
 
         } else if (this[$listeners][event]) {
             delete this[$listeners][event];
@@ -134,7 +156,16 @@ export default class Communicator {
     }
 
     invoke(method: string, ...args: any[]) : Promise<any> {
+
+        if (this[$destroyed]) {
+            return Promise.reject(new Error('communicator is destroyed'));
+        }
+        if (typeof method !== 'string' || method === '') {
+            return Promise.reject(new TypeError('method must be a non-empty string'));
+        }
+
         return new Promise((resolver, rejecter) => {
+
             const msgid = this[$messageId];
             this[$messageId] += 1;
 
@@ -198,8 +229,15 @@ export default class Communicator {
     }
 
     emit(event: string, ...data: any[]) : Promise<void> {
-        return new Promise((resolver, rejecter) => {
 
+        if (this[$destroyed]) {
+            return Promise.reject(new Error('communicator is destroyed'));
+        }
+        if (typeof event !== 'string' || event === '') {
+            return Promise.reject(new TypeError('event must be a non-empty string'));
+        }
+
+        return new Promise((resolver, rejecter) => {
             let fulfilled = false,
                 timeout : NodeJS.Timeout;
 
@@ -244,25 +282,30 @@ export default class Communicator {
     }
 
     register(method: string, handler: (...args: any[]) => Promise<any>) {
+        if (this[$destroyed]) {
+            throw new Error('communicator is destroyed');
+        }
         if (typeof method !== 'string' || method === '') {
-            // error
+            throw new TypeError('method must be a non-empty string');
         }
         if (typeof handler !== 'function') {
-            // error
+            throw new TypeError('handler must be a function');
         }
-
         if (this[$methods][method] != null) {
-            // error
+            throw new TypeError('method name already registered');
         }
         this[$methods][method] = handler;
     }
 
     unregister(method: string, handler: (...args: any[]) => Promise<any>) : void {
+        if (this[$destroyed]) {
+            throw new Error('communicator is destroyed');
+        }
         if (typeof method !== 'string' || method === '') {
-            // error
+            throw new TypeError('method must be a non-empty string');
         }
         if (typeof handler !== 'function') {
-            // error
+            throw new TypeError('handler must be a function');
         }
         if (this[$methods][method] == null) {
             return;
@@ -273,7 +316,13 @@ export default class Communicator {
     }
 
     getRemoteMethods() : Promise<any> {
+
+        if (this[$destroyed]) {
+            return Promise.reject(new Error('communicator is destroyed'));
+        }
+
         return new Promise((resolver, rejecter) => {
+
             const msgid = this[$messageId];
             this[$messageId] += 1;
 
@@ -336,7 +385,13 @@ export default class Communicator {
         });
     }
 
-    [$send](data: any) {
-        return this[$transport].aecSend(JSON.stringify(data));
+    destroy() : void {
+        if (!this[$destroyed]) {
+            this[$transport].aecDisconnect();
+            disconnectHandler.call(this);
+            this[$listeners] = {};
+            this[$methods] = {};
+            this[$destroyed] = true;
+        }
     }
 }

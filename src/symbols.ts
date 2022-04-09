@@ -1,3 +1,4 @@
+export const $destroyed = Symbol('AgnosticElectronCommunicator instance destroyed');
 export const $listeners = Symbol('AgnosticElectronCommunicator instance registered event listeners');
 export const $methods   = Symbol('AgnosticElectronCommunicator instance registered invokable methods');
 export const $transport = Symbol('AgnosticElectronCommunicator instance transports list');
